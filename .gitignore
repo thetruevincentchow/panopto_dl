@@ -1,4 +1,6 @@
 __pycache__/
+private/
+videos*
 
 # Authentication details (e.g. usernames, passwords)
 secret*

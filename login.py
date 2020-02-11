@@ -1,10 +1,17 @@
-from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
+
+# from selenium.webdriver.chrome.options import Options
 
 
 def login():
-    driver = webdriver.Chrome()
+    # options = Options()
+    # options.add_argument("--autoplay-policy=no-user-gesture-required")
+
+    options = {"autoplay-policy": "no-user-gesture-required"}
+    driver = webdriver.Chrome(seleniumwire_options=options)
     driver.get("https://nuscast.ap.panopto.com/Panopto/")
+
     input(
         "Select the desired login method and click 'Sign in', "
         "then press Enter in this console"
