@@ -1,4 +1,5 @@
 __pycache__/
 
+# Authentication details (e.g. usernames, passwords)
 secret*
 secrets.txt
