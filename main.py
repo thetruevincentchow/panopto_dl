@@ -6,17 +6,21 @@ import urllib
 
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import (
+    StaleElementReferenceException,
+    ElementNotInteractableException,
+)
 
 from login import login
 from module import *
 from video import *
 from downloader import *
 
-# download_base_path = "~/Videos/lecture_videos"
-download_base_path = "videos"
+from settings import Settings, load_settings
 
-create_base_folder(download_base_path)
+load_settings()
+
+create_base_folder(Settings.download_base_path)
 
 driver = login()
 driver.scopes = [
@@ -95,8 +99,6 @@ def expand_folder_browser() -> WebElement:
 
 
 # Initial user selection
-target_sem = ModuleTime(2019, 2020, 2)
-
 folder_tree = expand_folder_browser()
 input("Expand folders to download, then press Enter in this console")
 
@@ -106,7 +108,14 @@ input("Expand folders to download, then press Enter in this console")
 folder_tree = expand_folder_browser()
 
 candidates = extract_module_list(folder_tree)
-candidates = {mod: index for mod, index in candidates.items() if mod.time == target_sem}
+# for mod in candidates:
+#    mod: ModuleInfo
+#    print(str(mod), str(mod.time))
+candidates = {
+    mod: index
+    for mod, index in candidates.items()
+    if (mod.time == Settings.target_sem) or (Settings.target_sem is None)
+}
 mod_names = sorted(candidates.keys(), key=lambda a: a.time)
 
 print_module_titles(candidates)
@@ -156,10 +165,14 @@ def extract_video_sources(url) -> List[str]:
 
     # Autoplay doesn't seem to be enabled, so we need to click the play icon
     # play_button = driver.find_element_by_id("playIcon")
-    play_button = WebDriverWait(driver, 2).until(
-        lambda x: x.find_element_by_id("playIcon")
-    )
-    play_button.click()
+    try:
+        play_button = WebDriverWait(driver, 2).until(
+            lambda x: x.find_element_by_id("playIcon")
+        )
+        play_button.click()
+    except ElementNotInteractableException:
+        # e.g. if video isn't ready yet
+        return None
 
     time.sleep(1)
     for attempt in range(3)[::-1]:
@@ -171,7 +184,7 @@ def extract_video_sources(url) -> List[str]:
         if attempt:
             time.sleep(3)
     else:
-        raise Exception
+        return None
 
     return r
 
@@ -215,10 +228,10 @@ def extract_module_videos() -> Dict[ModuleInfo, List[VideoEntry]]:
 
 
 # for mod, v in extract_module_videos_gen():
-#    print(get_video_folder_path(download_base_path, mod, v))
+#    print(get_video_folder_path(Settings.download_base_path, mod, v))
 
 mod_videos = extract_module_videos()
-create_folder_paths(mod_videos, download_base_path)
+create_folder_paths(mod_videos, Settings.download_base_path)
 
 
 num_videos = 0
@@ -237,13 +250,27 @@ for mod, videos in mod_videos.items():
     for v in videos:
         cur += 1
         v: VideoEntry
-        folder_path = get_video_folder_path(download_base_path, mod, v)
+        if is_video_downloaded(
+            Settings.download_base_path,
+            mod,
+            v,
+            Settings.ignore_downloaded_video_extension,
+        ):
+            print("(%d / %d) SKIPPED %s" % (cur, num_videos, v))
+            continue
+        folder_path = get_video_folder_path(Settings.download_base_path, mod, v)
         v.sources = extract_video_sources(v.embed_url())
 
         # print(folder_path)
         # print(len(v.sources), "sources")
         # print("\n".join(v.sources))
 
-        print("(%d / %d) %s" % (cur, num_videos, v))
-        download_video(download_base_path, mod, v)
+        if v.sources:
+            print("(%d / %d) %s" % (cur, num_videos, v))
+            download_video(Settings.download_base_path, mod, v)
+        else:
+            print("(%d / %d) FAILED %s" % (cur, num_videos, v))
     print()
+
+print("Done! Closing browser window")
+driver.close()

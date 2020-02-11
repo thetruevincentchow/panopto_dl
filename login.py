@@ -17,29 +17,36 @@ def login():
         "then press Enter in this console"
     )
 
-    with open("secrets.txt") as f:
-        username_input = driver.find_element_by_id("userNameInput")
-        password_input = driver.find_element_by_id("passwordInput")
-        sign_in = driver.find_element_by_id("submitButton")
+    class Secrets:
+        def __init__(self):
+            self.username = None
+            self.password = None
 
-        class Secrets:
-            def __init__(self):
-                self.username = None
-                self.password = None
+        def set_username(self, username):
+            self.username = username
 
-            def set_username(self, username):
-                self.username = username
+        def set_password(self, password):
+            self.password = password
 
-            def set_password(self, password):
-                self.password = password
+    try:
+        with open("secrets.txt") as f:
+            username_input = driver.find_element_by_id("userNameInput")
+            password_input = driver.find_element_by_id("passwordInput")
+            sign_in = driver.find_element_by_id("submitButton")
 
-        username, password = f.readlines()
-        secrets = Secrets()
-        secrets.set_username(username.strip())
-        secrets.set_password(password.strip())
+            username, password = f.readlines()
+            secrets = Secrets()
+            secrets.set_username(username.strip())
+            secrets.set_password(password.strip())
 
-    username_input.send_keys(secrets.username)
-    password_input.send_keys(secrets.password)
-    sign_in.click()
+        username_input.send_keys(secrets.username)
+        password_input.send_keys(secrets.password)
+        sign_in.click()
+    except FileNotFoundError:
+        print("Credentials file 'secrets.txt' not found.")
+        input(
+            "Please key in your credentials manually and sign in,"
+            "then press Enter in the console"
+        )
 
     return driver

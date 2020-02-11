@@ -1,0 +1,9 @@
+{
+    "download_base_path": "videos",
+    "target_sem": {
+        "start_year": 2019,
+        "end_year": 2020,
+        "sem": 2
+    },
+    "ignore_downloaded_video_extension": ".mp4"
+}

@@ -7,6 +7,8 @@ import shutil
 from module import *
 from video import *
 
+from settings import Settings
+
 
 def resolve_path(path: str):
     return os.path.abspath(Path(path).expanduser())
@@ -75,6 +77,20 @@ def resolve_video_source(
         s for s in sources if ("master.m3u8" in s)
     ]  # otherwise, try to find master.m3u8
     return (us or [None])[0]
+
+
+def is_video_downloaded(
+    base_path: str, mod: ModuleInfo, video: VideoEntry, required_ext: Optional[str]
+):
+    if required_ext is None:
+        return False
+
+    download_folder = get_video_folder_path(base_path, mod, video)
+    # print(main_source)
+    # print(download_folder)
+    video_path = os.path.join(download_folder, "video%s" % required_ext)
+
+    return os.path.isfile(video_path)
 
 
 # TODO: download slides
