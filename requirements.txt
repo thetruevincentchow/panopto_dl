@@ -1,0 +1,2 @@
+selenium>=3.4.0
+selenium-wire>=1.0.11

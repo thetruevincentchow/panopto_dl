@@ -20,12 +20,13 @@ def get_video_folder_path(base_path: str, mod: ModuleInfo, video: VideoEntry):
 
 
 def create_base_folder(base_path: str):
+    base_path = resolve_path(base_path)
     try:
         os.makedirs(base_path)
-        print("Created base folder at", resolve_path(base_path))
+        print("Created base folder at", base_path)
         return True
     except OSError:
-        print("Base folder alread exists at", resolve_path(base_path))
+        print("Base folder alread exists at", base_path)
         return False
 
 
