@@ -1,16 +1,22 @@
 # panopto_dl
 Mass-download lecture videos from NUS Panopto.
 
----
+`panopto_dl` is a command-line Python program using Selenium to navigate video listing pages in Panopto.  Requests to media files are captured and their URLs are used to download their corresponding lecture videos.
+Since `panopto_dl` simulates key presses and mouse clicks, it does not depend on any web API and will work if access to Panopto is available.
 
-`panopto_dl` is a Python program using Selenium to navigate video listing pages in Panopto.  Requests to media files are captured and their URLs are used to download their corresponding lecture videos.
-Since `panopto_dl` simulates key presses and mouse clicks, it does not depend on any API and will work if access to Panopto is available.
+## Why?
+* Download all lecture videos easily
+* Organize downloaded materials by module code, year and video session
+* View lecture videos offline (using a media player of your choice)
+
+---
 
 ## What you need
 * NUSNET account and access to [NUS Panopto](https://nuscast.ap.panopto.com/Panopto/)
 * Python >= 3.5
 * Python packages listed in `requirements.txt`
 * Google Chrome or Chromium (for [Selenium WebDriver](https://selenium.dev/downloads/))
+* A fast Internet connection
 
 ## Setup
 1. Clone this repository on the command line
@@ -50,8 +56,8 @@ The `settings.json` configuration file looks like this (comments added for clari
         "sem": 2
     },
 
-    /* 3. Extension of fully downloaded videos
-          Files required to ignore the correpsonding video links on Panopto.
+    /* 3. Extension of fully downloaded videos files
+          required to ignore the correpsonding video links on Panopto.
           All videos are checked for their video sources if this is set to `null`. */
     "ignore_downloaded_video_extension": ".mp4"
 }
@@ -75,6 +81,12 @@ As stated in the above sample configuration file, specifying `null` is allowed f
 
 ## Planned features
 - Support for lecture videos hidden on LumiNUS
-- Support for selecting and downloading multiple streams
+- Selecting and downloading multiple streams from the same video
 - General improvements to synchronization
 - Parallel crawling of video listing pages
+- Support for efficient download of streams which use slides
+- Graphical user interface
+- Automatic video transcription
+
+## Known issues
+* Input and browser state validation is very minimal at the moment, so failure to follow the displayed instructions exactly will cause the script to fail.
